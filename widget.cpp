@@ -8,7 +8,6 @@
 
 #include <QtGui/QMouseEvent>
 
-
 // for paintEvent
 #include <QtGui/QPainter>
 #include <QtWidgets/QStyleOption>
@@ -30,14 +29,14 @@ namespace qt_extended {
     auto *title_wrapper = new QWidget;
     title_wrapper->setMouseTracking(true);
     title_wrapper->setProperty("class", "title_bar");
-    title_wrapper->setFixedHeight(w_title_bar->height());
+    title_wrapper->setFixedHeight(w_title_bar->height() + resize_region);
+    title_wrapper->setContentsMargins(0, 0, 0, 0);
 
-    auto *title_wrapper_layout = new QHBoxLayout(title_wrapper);
-    title_wrapper_layout->setContentsMargins(resize_region, resize_region, resize_region, resize_region);
-    title_wrapper_layout->setAlignment(Qt::AlignVCenter);
-    title_wrapper_layout->addWidget(w_title_bar);
+    auto *title_wrapper_layout = new QVBoxLayout(title_wrapper);
+    title_wrapper_layout->setContentsMargins(resize_region, resize_region, resize_region, 0);
+    title_wrapper_layout->addWidget(w_title_bar, Qt::AlignCenter);
     
-    main_layout->addWidget(title_wrapper, Qt::AlignTop);
+    main_layout->addWidget(title_wrapper);
     
     connect(this, &QWidget::windowTitleChanged, [this](const QString &title) {
       w_title_bar->get_ui().title->setText(title);
@@ -137,6 +136,7 @@ namespace qt_extended {
     setMouseTracking(true);
 
     ui.title = new QLabel("QFrameLess");
+    ui.title->setProperty("class", "title");
 
     ui.close_button = new QPushButton;
     ui.minimize_button = new QPushButton;
@@ -155,20 +155,15 @@ namespace qt_extended {
 
     auto *button_layout = new QHBoxLayout;
     button_layout->setSpacing(0);
-    button_layout->setAlignment(Qt::AlignVCenter);
     button_layout->addWidget(ui.minimize_button);
     button_layout->addWidget(ui.maximize_button);
     button_layout->addWidget(ui.close_button);
 
-    main_layout = new QHBoxLayout;
+    main_layout = new QHBoxLayout(this);
     main_layout->setContentsMargins(0, 0, 0, 0);
     main_layout->setSpacing(0);
-    main_layout->addWidget(ui.title, Qt::AlignHCenter);
+    main_layout->addWidget(ui.title, Qt::AlignLeft);
     main_layout->addLayout(button_layout);
-    
-    auto *layout = new QVBoxLayout(this);
-    layout->setAlignment(Qt::AlignTop);
-    layout->addLayout(main_layout);
 
     setFixedHeight(title_height);
 
@@ -179,8 +174,8 @@ namespace qt_extended {
         this->parent->showNormal();
         ui.maximize_button->setIcon(style()->standardPixmap(QStyle::SP_TitleBarMaxButton));
       } else {
-        ui.maximize_button->setIcon(style()->standardPixmap(QStyle::SP_TitleBarNormalButton));
         this->parent->showMaximized();
+        ui.maximize_button->setIcon(style()->standardPixmap(QStyle::SP_TitleBarNormalButton));
       }
       is_maximized = !is_maximized;
     });
