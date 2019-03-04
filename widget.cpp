@@ -8,15 +8,10 @@
 
 #include <QtGui/QMouseEvent>
 
-#include <QtWidgets/QGraphicsDropShadowEffect>
 
 // for paintEvent
 #include <QtGui/QPainter>
 #include <QtWidgets/QStyleOption>
-
-
-#include <QtCore/QDebug>
-
 
 namespace qt_extended {
   widget::widget(QWidget *parent) noexcept : QWidget(parent), 
@@ -32,8 +27,18 @@ namespace qt_extended {
     main_layout->setSpacing(0);
     main_layout->setAlignment(Qt::AlignTop);
 
-    main_layout->addWidget(w_title_bar, Qt::AlignTop);
+    auto *title_wrapper = new QWidget;
+    title_wrapper->setMouseTracking(true);
+    title_wrapper->setProperty("class", "title_bar");
+    title_wrapper->setFixedHeight(w_title_bar->height());
 
+    auto *title_wrapper_layout = new QHBoxLayout(title_wrapper);
+    title_wrapper_layout->setContentsMargins(resize_region, resize_region, resize_region, resize_region);
+    title_wrapper_layout->setAlignment(Qt::AlignVCenter);
+    title_wrapper_layout->addWidget(w_title_bar);
+    
+    main_layout->addWidget(title_wrapper, Qt::AlignTop);
+    
     connect(this, &QWidget::windowTitleChanged, [this](const QString &title) {
       w_title_bar->get_ui().title->setText(title);
     });
@@ -44,13 +49,11 @@ namespace qt_extended {
   void widget::mousePressEvent(QMouseEvent *event) {
     if (event->button() == Qt::LeftButton) {
       current_edge = get_edge(event->globalPos() - geometry().topLeft());
-      qDebug() << event->globalPos() - geometry().topLeft();
       set_cursor(current_edge);
     }
     event->accept();
   }
   void widget::mouseMoveEvent(QMouseEvent *event) {
-    qDebug() << "pe:" << event->globalPos() - geometry().topLeft();
     if (current_edge == edge::none) {
       set_cursor(get_edge(event->globalPos() - geometry().topLeft()));
     } else if (event->buttons() & Qt::LeftButton) {
@@ -79,8 +82,7 @@ namespace qt_extended {
         case edge::top | edge::left: {
           int new_width = width() + (top_left.x() - event_cursor.x());
           int new_height = height() + (top_left.y() - event_cursor.y());
-          if (top_left.y() != 0 && check_new_size(new_width, new_height)) {
-            qDebug() << event_cursor << top_left << new_height;
+          if (check_new_size(new_width, new_height)) {
             setGeometry(event_cursor.x(), event_cursor.y(), new_width, new_height);
           }
           break;
@@ -131,14 +133,21 @@ namespace qt_extended {
 
     QWidget::paintEvent(event);
   }
-  title_bar::title_bar(widget *parent) noexcept : QWidget(parent), parent(parent) {
+  title_bar::title_bar(QWidget *parent) noexcept : QWidget(parent), parent(parent) {
     setMouseTracking(true);
 
     ui.title = new QLabel("QFrameLess");
 
-    ui.close_button = new QPushButton();
-    ui.minimize_button = new QPushButton();
-    ui.maximize_button = new QPushButton();
+    ui.close_button = new QPushButton;
+    ui.minimize_button = new QPushButton;
+    ui.maximize_button = new QPushButton;
+
+    ui.close_button->setProperty("class", "close_button");
+    ui.close_button->setProperty("title_button", true);
+    ui.minimize_button->setProperty("class", "minimize_button");
+    ui.minimize_button->setProperty("title_button", true);
+    ui.maximize_button->setProperty("class", "maximize_button");
+    ui.maximize_button->setProperty("title_button", true);
 
     QPixmap pix = style()->standardPixmap(QStyle::SP_TitleBarCloseButton);
     ui.close_button->setIcon(pix);
@@ -151,11 +160,14 @@ namespace qt_extended {
 
     auto *button_layout = new QHBoxLayout;
     button_layout->setSpacing(0);
+    button_layout->setAlignment(Qt::AlignCenter);
     button_layout->addWidget(ui.minimize_button);
     button_layout->addWidget(ui.maximize_button);
     button_layout->addWidget(ui.close_button);
 
-    auto *main_layout = new QHBoxLayout;
+    main_layout = new QHBoxLayout;
+    main_layout->setContentsMargins(0, 0, 0, 0);
+    main_layout->setSpacing(0);
     main_layout->addWidget(ui.title, Qt::AlignHCenter);
     main_layout->addLayout(button_layout);
     
@@ -163,7 +175,7 @@ namespace qt_extended {
     layout->setAlignment(Qt::AlignTop);
     layout->addLayout(main_layout);
 
-    setFixedHeight(45);
+    setFixedHeight(title_height);
 
     connect(ui.close_button, &QPushButton::clicked, parent, &QWidget::close);
     connect(ui.minimize_button, &QPushButton::clicked, parent, &QWidget::showMinimized);
@@ -173,17 +185,17 @@ namespace qt_extended {
     if (event->button() == Qt::LeftButton) {
       cursor = event->globalPos() - parent->geometry().topLeft();
     }
-    event->ignore();
+    event->accept();
   }
   void title_bar::mouseMoveEvent(QMouseEvent *event) {
-    // TODO: check screen for resizing and tool buttons
-    if (event->buttons() & Qt::LeftButton &&
-        parent->get_edge(event->globalPos() - geometry().topLeft()) == widget::edge::none) {
+    if (event->buttons() & Qt::LeftButton) {
       parent->move(event->globalPos() - cursor);
-      QApplication::setOverrideCursor(Qt::ClosedHandCursor);
-    } else {
-      QApplication::setOverrideCursor(Qt::ArrowCursor);
+      setCursor(Qt::ClosedHandCursor);
     }
+    event->accept();
+  }
+  void title_bar::mouseReleaseEvent(QMouseEvent *event) {
+    setCursor(Qt::ArrowCursor);
     event->accept();
   }
   void title_bar::paintEvent(QPaintEvent *event) {
@@ -197,7 +209,6 @@ namespace qt_extended {
   const title_bar::_ui& title_bar::get_ui() const noexcept {
     return ui;
   }
-
   int16_t widget::get_edge(const QPoint &point) {
     bool is_left = point.x() <= resize_region;
     bool is_right = point.x() >= width() - resize_region;
@@ -215,17 +226,17 @@ namespace qt_extended {
   }
   void widget::set_cursor(int16_t edge_pos) {
     if (edge_pos & edge::left) {
-      if (edge_pos & edge::bottom) QApplication::setOverrideCursor(Qt::SizeBDiagCursor);
-      else if (edge_pos & edge::top) QApplication::setOverrideCursor(Qt::SizeFDiagCursor);
-      else QApplication::setOverrideCursor(Qt::SizeHorCursor);
+      if (edge_pos & edge::bottom) setCursor(Qt::SizeBDiagCursor);
+      else if (edge_pos & edge::top) setCursor(Qt::SizeFDiagCursor);
+      else setCursor(Qt::SizeHorCursor);
     } else if (edge_pos & edge::right) {
-      if (edge_pos & edge::bottom) QApplication::setOverrideCursor(Qt::SizeFDiagCursor);
-      else if (edge_pos & edge::top) QApplication::setOverrideCursor(Qt::SizeBDiagCursor);
-      else QApplication::setOverrideCursor(Qt::SizeHorCursor);
+      if (edge_pos & edge::bottom) setCursor(Qt::SizeFDiagCursor);
+      else if (edge_pos & edge::top) setCursor(Qt::SizeBDiagCursor);
+      else setCursor(Qt::SizeHorCursor);
     } else if (edge_pos & edge::top || edge_pos & edge::bottom) {
-      QApplication::setOverrideCursor(Qt::SizeVerCursor);
+      setCursor(Qt::SizeVerCursor);
     } else {
-      QApplication::setOverrideCursor(Qt::ArrowCursor);
+      setCursor(Qt::ArrowCursor);
     }
   }
 }
