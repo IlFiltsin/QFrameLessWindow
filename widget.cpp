@@ -133,7 +133,7 @@ namespace qt_extended {
 
     QWidget::paintEvent(event);
   }
-  title_bar::title_bar(QWidget *parent) noexcept : QWidget(parent), parent(parent) {
+  title_bar::title_bar(QWidget *parent) noexcept : QWidget(parent), parent(parent), is_maximized(false) {
     setMouseTracking(true);
 
     ui.title = new QLabel("QFrameLess");
@@ -149,18 +149,13 @@ namespace qt_extended {
     ui.maximize_button->setProperty("class", "maximize_button");
     ui.maximize_button->setProperty("title_button", true);
 
-    QPixmap pix = style()->standardPixmap(QStyle::SP_TitleBarCloseButton);
-    ui.close_button->setIcon(pix);
-
-    pix = style()->standardPixmap(QStyle::SP_TitleBarMinButton);
-    ui.minimize_button->setIcon(pix);
-
-    pix = style()->standardPixmap(QStyle::SP_TitleBarMaxButton);
-    ui.maximize_button->setIcon(pix);
+    ui.close_button->setIcon(style()->standardPixmap(QStyle::SP_TitleBarCloseButton));
+    ui.minimize_button->setIcon(style()->standardPixmap(QStyle::SP_TitleBarMinButton));
+    ui.maximize_button->setIcon(style()->standardPixmap(QStyle::SP_TitleBarMaxButton));
 
     auto *button_layout = new QHBoxLayout;
     button_layout->setSpacing(0);
-    button_layout->setAlignment(Qt::AlignCenter);
+    button_layout->setAlignment(Qt::AlignVCenter);
     button_layout->addWidget(ui.minimize_button);
     button_layout->addWidget(ui.maximize_button);
     button_layout->addWidget(ui.close_button);
@@ -179,7 +174,16 @@ namespace qt_extended {
 
     connect(ui.close_button, &QPushButton::clicked, parent, &QWidget::close);
     connect(ui.minimize_button, &QPushButton::clicked, parent, &QWidget::showMinimized);
-    connect(ui.maximize_button, &QPushButton::clicked, parent, &QWidget::showMaximized);
+    connect(ui.maximize_button, &QPushButton::clicked, [this]() {
+      if (is_maximized) {
+        this->parent->showNormal();
+        ui.maximize_button->setIcon(style()->standardPixmap(QStyle::SP_TitleBarMaxButton));
+      } else {
+        ui.maximize_button->setIcon(style()->standardPixmap(QStyle::SP_TitleBarNormalButton));
+        this->parent->showMaximized();
+      }
+      is_maximized = !is_maximized;
+    });
   }
   void title_bar::mousePressEvent(QMouseEvent *event) {
     if (event->button() == Qt::LeftButton) {
@@ -188,7 +192,7 @@ namespace qt_extended {
     event->accept();
   }
   void title_bar::mouseMoveEvent(QMouseEvent *event) {
-    if (event->buttons() & Qt::LeftButton) {
+    if (!is_maximized && event->buttons() & Qt::LeftButton) {
       parent->move(event->globalPos() - cursor);
       setCursor(Qt::ClosedHandCursor);
     }

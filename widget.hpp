@@ -43,8 +43,8 @@ namespace qt_extended {
       } ui;
       
       QPoint cursor;
-
       QWidget *parent;
+      bool is_maximized;
       
   };
   
