@@ -10,8 +10,6 @@
 #include <QtGui/QPainter>
 #include <QtWidgets/QStyleOption>
 
-#include <QtCore/QDebug>
-
 namespace qt_extended {
   widget::widget(QWidget *parent) noexcept : QWidget(parent), 
                                              main_layout(new QVBoxLayout(this)),
@@ -20,17 +18,16 @@ namespace qt_extended {
     setWindowFlag(Qt::FramelessWindowHint);
     setBackgroundRole(QPalette::Highlight);
     setMouseTracking(true);
-    installEventFilter(this);
 
     main_layout->setContentsMargins(0, 0, 0, 0);
     main_layout->setSpacing(0);
     main_layout->setAlignment(Qt::AlignTop);
 
+    // TODO: Try to find a better way for supporting 100% height buttons
     auto *title_wrapper = new QWidget;
     title_wrapper->setMouseTracking(true);
     title_wrapper->setProperty("class", "title_bar");
     title_wrapper->setFixedHeight(w_title_bar->height() + resize_region);
-    title_wrapper->setContentsMargins(0, 0, 0, 0);
 
     auto *title_wrapper_layout = new QVBoxLayout(title_wrapper);
     title_wrapper_layout->setContentsMargins(resize_region, resize_region, resize_region, 0);
@@ -46,7 +43,11 @@ namespace qt_extended {
     return w_title_bar;
   }
   void widget::childEvent(QChildEvent *event) {
-    // TODO: May be do it better
+    // TODO: Do it better
+    // It is not a good variant to track all childs, because this code will not be working:
+    // auto *widget = new QWidget(this);
+    // auto *button = new QPushButton(widget); <-- this child will not be tracking
+    // ** Recursive tracking will not helping **
     if (event->child()->isWidgetType() && event->type() == QEvent::ChildAdded) {
       static_cast<QWidget*>(event->child())->setMouseTracking(true);
     }
@@ -139,7 +140,10 @@ namespace qt_extended {
 
     QWidget::paintEvent(event);
   }
-  title_bar::title_bar(QWidget *parent) noexcept : QWidget(parent), parent(parent), is_maximized(false) {
+  title_bar::title_bar(QWidget *parent) noexcept : QWidget(parent), 
+                                                   main_layout(new QHBoxLayout),
+                                                   parent(parent), 
+                                                   is_maximized(false) {
     setMouseTracking(true);
 
     ui.title = new QLabel("QFrameLess");
@@ -161,16 +165,19 @@ namespace qt_extended {
     ui.maximize_button->setIcon(style()->standardPixmap(QStyle::SP_TitleBarMaxButton));
 
     auto *button_layout = new QHBoxLayout;
-    button_layout->setSpacing(0);
     button_layout->addWidget(ui.minimize_button);
     button_layout->addWidget(ui.maximize_button);
     button_layout->addWidget(ui.close_button);
 
-    main_layout = new QHBoxLayout(this);
-    main_layout->setContentsMargins(0, 0, 0, 0);
-    main_layout->setSpacing(0);
-    main_layout->addWidget(ui.title, Qt::AlignLeft);
-    main_layout->addLayout(button_layout);
+    main_layout->setAlignment(Qt::AlignLeft);
+
+    ui.layout = new QHBoxLayout(this);
+    ui.layout->setSpacing(0);
+    ui.layout->setContentsMargins(0, 0, 0, 0);
+    ui.layout->setAlignment(Qt::AlignLeft);
+    ui.layout->addWidget(ui.title);
+    ui.layout->addLayout(main_layout, 1);
+    ui.layout->addLayout(button_layout);
 
     setFixedHeight(title_height);
 

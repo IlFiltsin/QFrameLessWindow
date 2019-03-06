@@ -6,7 +6,7 @@
 class QPushButton;
 class QLabel;
 class QVBoxLayout;
-class QHBoxLayout;
+class QHBoxLayout;;
 
 namespace qt_extended {
 
@@ -18,7 +18,7 @@ namespace qt_extended {
 
     public:
 
-      QHBoxLayout *main_layout;
+      QHBoxLayout *main_layout; // layout should contains user's inferface withoud standart ui
 
       explicit title_bar(QWidget *parent) noexcept;
       const _ui& get_ui() const noexcept;
@@ -30,7 +30,7 @@ namespace qt_extended {
       void mouseReleaseEvent(QMouseEvent *event);
       void paintEvent(QPaintEvent *event);
 
-      static const int title_height{45};
+      static const int title_height{45}; // real height = title_height + resize_region (by widget)
       
     private:
 
@@ -39,10 +39,12 @@ namespace qt_extended {
         QPushButton *close_button;
         QPushButton *maximize_button;
         QPushButton *minimize_button;
+        QHBoxLayout *layout;
       } ui;
       
       QPoint cursor;
       QWidget *parent;
+
       bool is_maximized;
       
   };

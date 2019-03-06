@@ -35,19 +35,20 @@ QPushButton *button = new QPushButton;
 main_layout->addWidget(button);
 ```
 
-You can add any widgets in title_bar (All widgets should be add to `qt_extended::title_bar::main_layout` (Horizonal allignment)):
+You can add any widgets in title_bar (All widgets should be add to `qt_extended::title_bar::main_layout` (Horizontal allignment)):
 
 ```c++
 get_title_bar()->main_layout->addWidget(button);
 ```
 
-You can get access to default ui in title_bar (header and 3 tool buttons):
+You can get access to default ui in title_bar (header, 3 tool buttons and common layout):
 
 ```c++
 get_title_bar()->get_ui().title // QLabel
 get_title_bar()->get_ui().close_button // QPushButton
 get_title_bar()->get_ui().maximize_button // QPushButton
 get_title_bar()->get_ui().minimize_button // QPushButton
+get_title_bar()->get_ui().layout // QHBoxLayout
 ```
 
 ## QSS
