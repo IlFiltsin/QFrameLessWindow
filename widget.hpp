@@ -30,7 +30,6 @@ namespace qt_extended {
       void mouseReleaseEvent(QMouseEvent *event);
       void paintEvent(QPaintEvent *event);
 
-
       static const int title_height{45};
       
     private:
@@ -65,6 +64,8 @@ namespace qt_extended {
       void mouseMoveEvent(QMouseEvent *event);
       void mouseReleaseEvent(QMouseEvent *event);
       void paintEvent(QPaintEvent *event);
+
+      void childEvent(QChildEvent *event);
 
       static const int resize_region{5};
     

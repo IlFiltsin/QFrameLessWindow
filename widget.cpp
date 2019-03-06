@@ -10,6 +10,8 @@
 #include <QtGui/QPainter>
 #include <QtWidgets/QStyleOption>
 
+#include <QtCore/QDebug>
+
 namespace qt_extended {
   widget::widget(QWidget *parent) noexcept : QWidget(parent), 
                                              main_layout(new QVBoxLayout(this)),
@@ -18,8 +20,8 @@ namespace qt_extended {
     setWindowFlag(Qt::FramelessWindowHint);
     setBackgroundRole(QPalette::Highlight);
     setMouseTracking(true);
+    installEventFilter(this);
 
-    
     main_layout->setContentsMargins(0, 0, 0, 0);
     main_layout->setSpacing(0);
     main_layout->setAlignment(Qt::AlignTop);
@@ -42,6 +44,13 @@ namespace qt_extended {
   }
   const title_bar* widget::get_title_bar() const noexcept {
     return w_title_bar;
+  }
+  void widget::childEvent(QChildEvent *event) {
+    // TODO: May be do it better
+    if (event->child()->isWidgetType() && event->type() == QEvent::ChildAdded) {
+      static_cast<QWidget*>(event->child())->setMouseTracking(true);
+    }
+    QWidget::childEvent(event);
   }
   void widget::mousePressEvent(QMouseEvent *event) {
     if (event->button() == Qt::LeftButton) {
