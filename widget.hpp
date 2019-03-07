@@ -6,7 +6,7 @@
 class QPushButton;
 class QLabel;
 class QVBoxLayout;
-class QHBoxLayout;;
+class QHBoxLayout;
 
 namespace qt_extended {
 
@@ -35,6 +35,7 @@ namespace qt_extended {
     private:
 
       struct _ui {
+        QLabel *icon;
         QLabel *title;
         QPushButton *close_button;
         QPushButton *maximize_button;
