@@ -12,17 +12,13 @@
 
 namespace qt_extended {
   widget::widget(QWidget *parent) noexcept : QWidget(parent),
-                                             main_layout(new QVBoxLayout(this)),
+                                             main_layout(new QVBoxLayout),
                                              w_title_bar(new title_bar(this)),
                                              current_edge(edge::none) {
     setWindowFlag(Qt::FramelessWindowHint);
     setBackgroundRole(QPalette::Highlight);
     setMouseTracking(true);
     setWindowTitle("FrameLess");
-
-    main_layout->setContentsMargins(0, 0, 0, 0);
-    main_layout->setSpacing(0);
-    main_layout->setAlignment(Qt::AlignTop);
 
     //TODO: Try to find a better way for supporting 100% height buttons
     auto *title_wrapper = new QWidget;
@@ -33,8 +29,14 @@ namespace qt_extended {
     auto *title_wrapper_layout = new QVBoxLayout(title_wrapper);
     title_wrapper_layout->setContentsMargins(resize_region, resize_region, resize_region, 0);
     title_wrapper_layout->addWidget(w_title_bar); 
+
+    auto *main_layout_wrapper = new QVBoxLayout(this);
+    main_layout_wrapper->setContentsMargins(0, 0, 0, 0);
+    main_layout_wrapper->setSpacing(0);
+    main_layout_wrapper->setAlignment(Qt::AlignTop);
     
-    main_layout->addWidget(title_wrapper);
+    main_layout_wrapper->addWidget(title_wrapper);
+    main_layout_wrapper->addLayout(main_layout);
     
     connect(this, &QWidget::windowTitleChanged, [this](const QString &title) {
       w_title_bar->get_ui().title->setText(title);
