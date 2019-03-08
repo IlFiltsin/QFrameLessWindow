@@ -44,12 +44,12 @@ get_title_bar()->main_layout->addWidget(button);
 You can get access to default ui in title_bar (header, 3 tool buttons and common layout):
 
 ```c++
-get_title_bar()->get_ui().icon // QLabel
-get_title_bar()->get_ui().title // QLabel
-get_title_bar()->get_ui().close_button // QPushButton
-get_title_bar()->get_ui().maximize_button // QPushButton
-get_title_bar()->get_ui().minimize_button // QPushButton
-get_title_bar()->get_ui().layout // QHBoxLayout
+get_title_bar()->get_ui().icon; // QLabel
+get_title_bar()->get_ui().title; // QLabel
+get_title_bar()->get_ui().close_button; // QPushButton
+get_title_bar()->get_ui().maximize_button; // QPushButton
+get_title_bar()->get_ui().minimize_button; // QPushButton
+get_title_bar()->get_ui().layout; // QHBoxLayout
 ```
 
 For default, icon is hide. You can show icon with this code:

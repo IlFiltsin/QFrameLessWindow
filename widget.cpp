@@ -171,6 +171,7 @@ namespace qt_extended {
     ui.maximize_button->setIcon(style()->standardPixmap(QStyle::SP_TitleBarMaxButton));
 
     auto *button_layout = new QHBoxLayout;
+    button_layout->setAlignment(Qt::AlignRight);
     button_layout->addWidget(ui.minimize_button);
     button_layout->addWidget(ui.maximize_button);
     button_layout->addWidget(ui.close_button);
