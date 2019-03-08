@@ -1,6 +1,6 @@
 #include "widget.hpp"
 
-#include <QtWidgets/QPushButton>
+#include <QtWidgets/QToolButton>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QBoxLayout>
 
@@ -157,9 +157,9 @@ namespace qt_extended {
     ui.title = new QLabel;
     ui.title->setProperty("class", "title");
 
-    ui.close_button = new QPushButton;
-    ui.minimize_button = new QPushButton;
-    ui.maximize_button = new QPushButton;
+    ui.close_button = new QToolButton;
+    ui.minimize_button = new QToolButton;
+    ui.maximize_button = new QToolButton;
 
     ui.close_button->setProperty("class", "close_button");
     ui.close_button->setProperty("title_button", true);
@@ -190,9 +190,9 @@ namespace qt_extended {
 
     setFixedHeight(title_height);
 
-    connect(ui.close_button, &QPushButton::clicked, parent, &QWidget::close);
-    connect(ui.minimize_button, &QPushButton::clicked, parent, &QWidget::showMinimized);
-    connect(ui.maximize_button, &QPushButton::clicked, [this]() {
+    connect(ui.close_button, &QToolButton::clicked, parent, &QWidget::close);
+    connect(ui.minimize_button, &QToolButton::clicked, parent, &QWidget::showMinimized);
+    connect(ui.maximize_button, &QToolButton::clicked, [this]() {
       if (is_maximized) {
         this->parent->showNormal();
         ui.maximize_button->setIcon(style()->standardPixmap(QStyle::SP_TitleBarMaxButton));

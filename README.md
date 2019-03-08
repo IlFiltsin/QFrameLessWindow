@@ -46,9 +46,9 @@ You can get access to default ui in title_bar (header, 3 tool buttons and common
 ```c++
 get_title_bar()->get_ui().icon; // QLabel
 get_title_bar()->get_ui().title; // QLabel
-get_title_bar()->get_ui().close_button; // QPushButton
-get_title_bar()->get_ui().maximize_button; // QPushButton
-get_title_bar()->get_ui().minimize_button; // QPushButton
+get_title_bar()->get_ui().close_button; // QToolButton
+get_title_bar()->get_ui().maximize_button; // QToolButton
+get_title_bar()->get_ui().minimize_button; // QToolButton
 get_title_bar()->get_ui().layout; // QHBoxLayout
 ```
 

@@ -3,7 +3,7 @@
 
 #include <QtWidgets/QWidget>
 
-class QPushButton;
+class QToolButton;
 class QLabel;
 class QVBoxLayout;
 class QHBoxLayout;
@@ -37,9 +37,9 @@ namespace qt_extended {
       struct _ui {
         QLabel *icon;
         QLabel *title;
-        QPushButton *close_button;
-        QPushButton *maximize_button;
-        QPushButton *minimize_button;
+        QToolButton *close_button;
+        QToolButton *maximize_button;
+        QToolButton *minimize_button;
         QHBoxLayout *layout;
       } ui;
       
