@@ -11,7 +11,7 @@ class QHBoxLayout;
 namespace qt_extended {
 
   class title_bar : public QWidget {
-    
+
     Q_OBJECT
 
     struct _ui;
@@ -51,6 +51,7 @@ namespace qt_extended {
   };
   
   class widget : public QWidget {
+    
     Q_OBJECT
 
     public:
@@ -58,6 +59,7 @@ namespace qt_extended {
       QVBoxLayout *main_layout;
 
       explicit widget(QWidget *parent = nullptr) noexcept;
+      ~widget() = default;
 
       const title_bar* get_title_bar() const noexcept;
     
